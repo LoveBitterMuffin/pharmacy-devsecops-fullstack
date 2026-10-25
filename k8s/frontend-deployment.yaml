@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pharmacy-frontend
+  namespace: pharmacy-devsecops
+  labels:
+    app.kubernetes.io/name: pharmacy-frontend
+    app.kubernetes.io/part-of: pharmacy-system
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pharmacy-frontend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pharmacy-frontend
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: frontend
+          image: ghcr.io/lovebittermuffin/pharmacy-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 150m
+              memory: 128Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          volumeMounts:
+            - name: tmp-dir
+              mountPath: /tmp
+            - name: cache-dir
+              mountPath: /var/cache/nginx
+      volumes:
+        - name: tmp-dir
+          emptyDir: {}
+        - name: cache-dir
+          emptyDir: {}

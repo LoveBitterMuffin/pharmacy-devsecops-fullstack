@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pharmacy-config
+  namespace: pharmacy-devsecops
+data:
+  DATABASE_URL: "sqlite:////app/data/pharmacy.db"
+  ALLOWED_ORIGINS: "http://localhost,http://localhost:8080,http://pharmacy.local,http://127.0.0.1:8080"

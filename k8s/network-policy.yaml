@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-isolation-policy
+  namespace: pharmacy-devsecops
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: pharmacy-backend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: pharmacy-frontend
+      ports:
+        - protocol: TCP
+          port: 8000
